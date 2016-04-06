@@ -1,19 +1,20 @@
-import TimedCallback from './lib/TimedCallback';
-import EmitListener from './lib/EmitListener';
-import * as Tool from './lib/Tool';
-import TagSet from './struct/TagSet';
-const uid = Tool.sequenceGenerator();
-const TYPE_EMIT = 0;
-const TYPE_REQUEST = 1;
-const TYPE_REPLY = 2;
-export default class Link {
-    constructor() {
+var TimedCallback_1 = require('./lib/TimedCallback');
+var EmitListener_1 = require('./lib/EmitListener');
+var Tool = require('./lib/Tool');
+var TagSet_1 = require('./struct/TagSet');
+var StringMap_1 = require('./struct/StringMap');
+var uid = Tool.sequenceGenerator();
+var TYPE_EMIT = 0;
+var TYPE_REQUEST = 1;
+var TYPE_REPLY = 2;
+var Link = (function () {
+    function Link() {
         this.send = null;
-        this._emitListeners = new TagSet();
-        this._requestListeners = new Map();
-        this._callbacks = new Map();
+        this._emitListeners = new TagSet_1.default();
+        this._requestListeners = new StringMap_1.default();
+        this._callbacks = new StringMap_1.default();
     }
-    feed(inst) {
+    Link.prototype.feed = function (inst) {
         var link = this;
         var type = inst[0];
         var context = null;
@@ -45,57 +46,60 @@ export default class Link {
             var data = inst[1];
             var cbid = inst[2];
             var cb = link._callbacks.get(cbid);
-            link._callbacks.delete(cbid);
+            link._callbacks.del(cbid);
             if (cb)
                 cb.apply(context, data);
         }
         else {
             console.log('unknown type', type);
         }
-    }
-    emitArray(event, arr) {
+    };
+    Link.prototype.emitArray = function (event, arr) {
         this.send([TYPE_EMIT, event, arr]);
         return this;
-    }
-    emit(event) {
+    };
+    Link.prototype.emit = function (event) {
         var args = Array.prototype.slice.call(arguments, 1);
         return this.emitArray(event, args);
-    }
-    on(events, callback, ttl) {
-        var listener = new EmitListener(callback, ttl);
+    };
+    Link.prototype.on = function (events, callback, ttl) {
+        var listener = new EmitListener_1.default(callback, ttl);
         return this._emitListeners.add(listener, events);
-    }
-    once(event, callback) {
+    };
+    Link.prototype.once = function (event, callback) {
         return this.on(event, callback, 1);
-    }
+    };
     ;
-    removeEmitListener(id) {
+    Link.prototype.removeEmitListener = function (id) {
         return this._emitListeners.remove(id);
-    }
+    };
     ;
     // callback: function(err, arg1, arg2, ...)
-    request(event, data, callback, ttw) {
-        let cbid = uid();
-        let cb = new TimedCallback(callback, ttw, (wait) => {
-            this._callbacks.delete(cbid);
-            callback('timeout after ' + wait + 'ms');
+    Link.prototype.request = function (event, data, callback, ttw) {
+        var _this = this;
+        var cbid = uid();
+        var cb = new TimedCallback_1.default(callback, ttw, function (wait) {
+            _this._callbacks.del(cbid);
+            callback(new Error('timeout after ' + wait + 'ms'));
         });
         this._callbacks.set(cbid, cb);
         cb.start(this);
         this.send([TYPE_REQUEST, event, data, cbid]);
         return this;
-    }
+    };
     ;
     // callback: function(data, rep)
     // rep: function(err, arg1, arg2, ...)
-    reply(event, callback) {
+    Link.prototype.reply = function (event, callback) {
         var b = this._requestListeners.has(event);
         if (b)
             throw new Error('multiple reply on ' + event);
         this._requestListeners.set(event, callback);
         return this;
-    }
-    removeRequestListener(event) {
-        return this._requestListeners.delete(event);
-    }
-}
+    };
+    Link.prototype.removeRequestListener = function (event) {
+        return this._requestListeners.del(event);
+    };
+    return Link;
+})();
+module.exports = Link;

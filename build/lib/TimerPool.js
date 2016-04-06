@@ -1,6 +1,6 @@
-import Heap from '../struct/Heap';
-export default class TimerPool {
-    constructor(option) {
+var Heap_1 = require('../struct/Heap');
+var TimerPool = (function () {
+    function TimerPool(option) {
         var opt = {
             clearingInterval: 100
         };
@@ -8,15 +8,16 @@ export default class TimerPool {
             opt.clearingInterval = option.clearingInterval;
         this._clearingInterval = opt.clearingInterval;
         this._cnt = 0;
-        this._pool = new Heap(function (a, b) {
+        this._pool = new Heap_1.default(function (a, b) {
             return a.time < b.time;
         });
         this._timer = null;
         this.start();
     }
-    start() {
+    TimerPool.prototype.start = function () {
+        var _this = this;
         var h = this._pool;
-        var run = () => {
+        var run = function () {
             var now = Date.now();
             while (!h.isEmpty() && h.peek().time <= now) {
                 var t = h.take();
@@ -27,19 +28,19 @@ export default class TimerPool {
                 // hope to use setImmediate, but for compatibility
                 t.action.call();
             }
-            this._timer = setTimeout(run, this._clearingInterval);
+            _this._timer = setTimeout(run, _this._clearingInterval);
         };
         run();
-    }
+    };
     ;
     // not stop immediately, unit current round of timeout
-    pause() {
+    TimerPool.prototype.pause = function () {
         if (this._timer)
             clearTimeout(this._timer);
         this._timer = null;
-    }
+    };
     ;
-    setTimeout(f, ms) {
+    TimerPool.prototype.setTimeout = function (f, ms) {
         var now = Date.now();
         var id = '_' + this._cnt++;
         this._pool.add({
@@ -49,9 +50,9 @@ export default class TimerPool {
             action: f
         });
         return id;
-    }
+    };
     ;
-    setInterval(f, ms) {
+    TimerPool.prototype.setInterval = function (f, ms) {
         var now = Date.now();
         var id = '_' + this._cnt++;
         this._pool.add({
@@ -62,15 +63,17 @@ export default class TimerPool {
             action: f
         });
         return id;
-    }
+    };
     ;
     // O(n)
-    clearTimer(id) {
+    TimerPool.prototype.clearTimer = function (id) {
         var t = this._pool.removeAny(function (x) {
             return x.id === id;
         });
         return !!t;
-    }
+    };
     ;
-}
-TimerPool.global = new TimerPool();
+    TimerPool.global = new TimerPool();
+    return TimerPool;
+})();
+exports.default = TimerPool;

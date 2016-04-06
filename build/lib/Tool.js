@@ -1,4 +1,4 @@
-export var random128 = function () {
+exports.random128 = function () {
     var d4 = function () {
         var b = 0x10000; // 4*4-bit = 16 bit
         return Math.floor(b + b * Math.random()).toString(16).slice(1);
@@ -6,7 +6,7 @@ export var random128 = function () {
     // 128-bit is safer, see http://en.wikipedia.org/wiki/Birthday_attack
     return [d4(), d4(), d4(), d4(), d4(), d4(), d4(), d4()].join('');
 };
-export var random32 = function () {
+exports.random32 = function () {
     var d4 = function () {
         var b = 0x10000; // 4*4-bit = 16 bit
         return Math.floor(b + b * Math.random()).toString(16).slice(1);
@@ -14,13 +14,13 @@ export var random32 = function () {
     // 128-bit is safer, see http://en.wikipedia.org/wiki/Birthday_attack
     return [d4(), d4()].join('');
 };
-export var sequenceGenerator = function () {
+exports.sequenceGenerator = function () {
     var n = 0;
     return function () {
         return n++;
     };
 };
-export var unique = function (arr, equal) {
+exports.unique = function (arr, equal) {
     // must be sorted first, O(n)
     var eq = equal || function (a, b) {
         return a === b;
@@ -36,7 +36,7 @@ export var unique = function (arr, equal) {
     }
     return t;
 };
-export var arrayCmp = function (a, b) {
+exports.arrayCmp = function (a, b) {
     var len = Math.min(a.length, b.length);
     for (var i = 0; i < len; i++) {
         if (a[i] < b[i])
@@ -50,10 +50,10 @@ export var arrayCmp = function (a, b) {
         return 1;
     return 0;
 };
-export var arrayEq = function (a, b) {
-    return arrayCmp(a, b) === 0;
+exports.arrayEq = function (a, b) {
+    return exports.arrayCmp(a, b) === 0;
 };
-export var objectUnion = function () {
+exports.objectUnion = function () {
     var args = arguments;
     var res = {};
     for (var i = 0; i < args.length; i++) {

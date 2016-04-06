@@ -1,42 +1,41 @@
-import TimerPool from './TimerPool';
-const timerPool = TimerPool.global;
-const MinTimeToWait = 20;
-const DefaultTimeToWait = 5 * 1000;
-export default class TimedCallback {
-    constructor(callback, ttw, timeoutCallback) {
+var TimerPool_1 = require('./TimerPool');
+var timerPool = TimerPool_1.default.global;
+var MinTimeToWait = 20;
+var DefaultTimeToWait = 5 * 1000;
+var TimedCallback = (function () {
+    function TimedCallback(callback, ttw, timeoutCallback) {
         this._timer = null;
         this._ttw = Math.max(ttw || DefaultTimeToWait, MinTimeToWait);
         this._callback = callback;
         this._timeoutCallback = timeoutCallback;
     }
-    call(context) {
+    TimedCallback.prototype.call = function (context) {
         var arr = Array.prototype.slice.call(arguments, 1);
         return this.apply(context, arr);
-    }
+    };
     ;
-    apply(context, arr) {
+    TimedCallback.prototype.apply = function (context, arr) {
         var cb = this._callback;
         this._callback = null;
-        // if(this._timer) clearTimeout(this._timer)
-        this._timer = null;
         this._timeoutCallback = null;
-        if (cb)
+        if (typeof cb === 'function')
             return cb.apply(context, arr);
-        return undefined;
-    }
+    };
     ;
-    start(context) {
+    TimedCallback.prototype.start = function (context) {
+        var _this = this;
         var start = Date.now();
-        this._timer = timerPool.setTimeout(() => {
-            var cb = this._callback;
-            this._callback = null;
-            if (this._timeoutCallback) {
+        this._timer = timerPool.setTimeout(function () {
+            _this._callback = null;
+            if (_this._timeoutCallback) {
                 var end = Date.now();
-                this._timeoutCallback.call(context, end - start);
+                _this._timeoutCallback.call(context, end - start);
             }
         }, this._ttw);
-    }
-    isStarted() {
+    };
+    TimedCallback.prototype.isStarted = function () {
         return !!this._timer;
-    }
-}
+    };
+    return TimedCallback;
+})();
+exports.default = TimedCallback;

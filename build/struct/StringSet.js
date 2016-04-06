@@ -1,24 +1,28 @@
-export default class StringSet {
-    constructor() {
+var StringSet = (function () {
+    function StringSet() {
         this.cnt = 0;
         this._bag = {};
     }
-    static singleton(str) {
+    StringSet.singleton = function (str) {
         var s = new StringSet();
         s.add(str);
         return s;
-    }
-    static fromArray(arr) {
+    };
+    StringSet.fromArray = function (arr) {
         var s = new StringSet();
         for (var i = 0; i < arr.legnth; i++) {
             s.add(arr[i]);
         }
         return s;
-    }
-    get cardinal() {
-        return this.cnt;
-    }
-    add(str) {
+    };
+    Object.defineProperty(StringSet.prototype, "cardinal", {
+        get: function () {
+            return this.cnt;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    StringSet.prototype.add = function (str) {
         str = str.toString();
         var t = this._bag[str];
         if (!t) {
@@ -26,9 +30,9 @@ export default class StringSet {
             this.cnt += 1;
         }
         return this;
-    }
+    };
     ;
-    remove(str) {
+    StringSet.prototype.remove = function (str) {
         var t = this._bag[str];
         if (t) {
             delete this._bag[str];
@@ -36,24 +40,26 @@ export default class StringSet {
             return t;
         }
         return null;
-    }
+    };
     ;
-    isMember(str) {
+    StringSet.prototype.isMember = function (str) {
         return str in this._bag;
-    }
+    };
     ;
-    members() {
+    StringSet.prototype.members = function () {
         return Object.keys(this._bag);
-    }
+    };
     ;
-    forEach(callback) {
+    StringSet.prototype.forEach = function (callback) {
         var xs = Object.keys(this._bag);
         for (var i = 0; i < xs.length; i++)
             callback(xs[i]);
-    }
+    };
     ;
-    toArray() {
+    StringSet.prototype.toArray = function () {
         return Object.keys(this._bag);
-    }
+    };
     ;
-}
+    return StringSet;
+})();
+exports.default = StringSet;

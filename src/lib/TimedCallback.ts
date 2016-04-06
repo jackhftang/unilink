@@ -10,7 +10,7 @@ export default class TimedCallback {
   _callback;
   _timeoutCallback;
 
-  constructor(callback, ttw:number, timeoutCallback) {
+  constructor(callback, ttw, timeoutCallback) {
     this._timer = null;
     this._ttw = Math.max(ttw || DefaultTimeToWait, MinTimeToWait);
     this._callback = callback;
@@ -25,17 +25,13 @@ export default class TimedCallback {
   apply(context, arr){
     var cb = this._callback;
     this._callback = null;
-    // if(this._timer) clearTimeout(this._timer)
-    this._timer = null;
     this._timeoutCallback = null;
-    if(cb) return cb.apply(context, arr);
-    return undefined
+    if(typeof cb === 'function') return cb.apply(context, arr);
   };
 
   start(context){
     var start = Date.now();
     this._timer = timerPool.setTimeout(() => {
-      var cb = this._callback;
       this._callback = null;
       if(this._timeoutCallback){
         var end = Date.now();
@@ -45,7 +41,7 @@ export default class TimedCallback {
   }
 
   isStarted(){
-    return !!this._timer
+    return !!this._timer;
   }
 
 }

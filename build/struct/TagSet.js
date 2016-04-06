@@ -1,4 +1,4 @@
-import StringSet from './StringSet';
+var StringSet_1 = require('./StringSet');
 ///////////////////////////////////////////////////////////
 // helper
 function toArray(x) {
@@ -10,34 +10,34 @@ function toArray(x) {
 }
 ///////////////////////////////////////////////////////////
 // TagSet
-export default class TagSet {
-    constructor() {
+var TagSet = (function () {
+    function TagSet() {
         this._cnt = 0;
         this._bag = {}; // map id -> { tags, val }
         this._tags = {}; // map tag -> StringSet
     }
-    add(obj, tags) {
+    TagSet.prototype.add = function (obj, tags) {
         var id = '_' + this._cnt++;
         var arr = toArray(tags);
         // add to set
         this._bag[id] = {
-            tags: StringSet.fromArray(arr),
+            tags: StringSet_1.default.fromArray(arr),
             val: obj
         };
         // add to tags
         for (var i = 0; i < arr.length; i++)
             this.addTag(id, arr[i]);
         return id;
-    }
+    };
     ;
-    getTags(id) {
+    TagSet.prototype.getTags = function (id) {
         var s = this._bag[id];
         if (!s)
             return [];
         return s.tags.concat(); // make a copy
-    }
+    };
     ;
-    addTag(id, tag) {
+    TagSet.prototype.addTag = function (id, tag) {
         // backward lookup
         var x = this._bag[id];
         if (!x)
@@ -48,11 +48,11 @@ export default class TagSet {
         if (s)
             s.add(id);
         else
-            this._tags[tag] = StringSet.singleton(id);
+            this._tags[tag] = StringSet_1.default.singleton(id);
         return true;
-    }
+    };
     ;
-    removeTag(id, tag) {
+    TagSet.prototype.removeTag = function (id, tag) {
         // backward lookup
         var x = this._bag[id];
         if (!x)
@@ -69,9 +69,9 @@ export default class TagSet {
         else {
             return false;
         }
-    }
+    };
     ;
-    updateTag(id, tags) {
+    TagSet.prototype.updateTag = function (id, tags) {
         var x = this._bag[id];
         if (!x)
             return false;
@@ -113,9 +113,9 @@ export default class TagSet {
         }
         x.tags = right;
         return true;
-    }
+    };
     ;
-    remove(id) {
+    TagSet.prototype.remove = function (id) {
         var self = this;
         var x = this._bag[id];
         if (!x)
@@ -124,16 +124,16 @@ export default class TagSet {
             self.removeTag(id, t);
         });
         return x;
-    }
+    };
     ;
-    get(id) {
+    TagSet.prototype.get = function (id) {
         var x = this._bag[id];
         if (x)
             return x.val; // allow to modify value
         return null;
-    }
+    };
     ;
-    members(tag) {
+    TagSet.prototype.members = function (tag) {
         var self = this;
         var ids = this._tags[tag];
         if (!ids)
@@ -141,9 +141,9 @@ export default class TagSet {
         return ids.members().map(function (id) {
             return self._bag[id].val; // allow to modify values
         });
-    }
+    };
     ;
-    forEach(tag, callback) {
+    TagSet.prototype.forEach = function (tag, callback) {
         var self = this;
         var strSet = this._tags[tag];
         if (!strSet)
@@ -152,19 +152,21 @@ export default class TagSet {
         var vals = ids.map(function (id) { return self._bag[id].val; });
         for (var i = 0; i < ids.length; i++)
             callback(vals[i], ids[i]);
-    }
+    };
     ;
-    getAll() {
+    TagSet.prototype.getAll = function () {
         var self = this;
         var keys = Object.keys(this._bag);
         return keys.map(function (key) { return self._bag[key].val; });
-    }
+    };
     ;
-    cardinal(tag) {
+    TagSet.prototype.cardinal = function (tag) {
         var s = this._tags[tag];
         if (s)
             return s.cardinal;
         return 0;
-    }
+    };
     ;
-}
+    return TagSet;
+})();
+exports.default = TagSet;

@@ -2,6 +2,7 @@ import TimedCallback from './lib/TimedCallback';
 import EmitListener from './lib/EmitListener';
 import * as Tool from './lib/Tool';
 import TagSet from './struct/TagSet';
+import StringMap from './struct/StringMap';
 
 const uid = Tool.sequenceGenerator();
 
@@ -9,7 +10,7 @@ const TYPE_EMIT     = 0;
 const TYPE_REQUEST  = 1;
 const TYPE_REPLY    = 2;
 
-export default class Link {
+class Link {
   send;
   _emitListeners;
   _requestListeners;
@@ -18,8 +19,8 @@ export default class Link {
   constructor(){
     this.send = null;
     this._emitListeners = new TagSet();
-    this._requestListeners = new Map();
-    this._callbacks = new Map()
+    this._requestListeners = new StringMap();
+    this._callbacks = new StringMap()
   }
 
   feed(inst){
@@ -52,7 +53,7 @@ export default class Link {
       var data = inst[1];
       var cbid = inst[2];
       var cb = link._callbacks.get(cbid);
-      link._callbacks.delete(cbid);
+      link._callbacks.del(cbid);
       if(cb) cb.apply(context, data)
     }
     else {
@@ -87,8 +88,8 @@ export default class Link {
   request(event, data, callback, ttw){
     let cbid = uid();
     let cb = new TimedCallback(callback, ttw, (wait) => {
-      this._callbacks.delete(cbid);
-      callback('timeout after ' + wait + 'ms')
+      this._callbacks.del(cbid);
+      callback(new Error('timeout after ' + wait + 'ms'));
     });
     this._callbacks.set(cbid, cb);
     cb.start(this);
@@ -106,12 +107,13 @@ export default class Link {
   }
 
   removeRequestListener(event){
-    return this._requestListeners.delete(event)
+    return this._requestListeners.del(event)
   }
 
 }
 
 
+export = Link;
 
 
 

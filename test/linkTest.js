@@ -1,4 +1,4 @@
-import Link from '../build/Link';
+var Link = require('../build/Link');
 
 var assert = require('assert');
 
@@ -83,7 +83,7 @@ describe('Link', function(){
         // not return
       });
       b.request(event, {}, function(err){
-        assert.equal(err.slice(0,7), 'timeout');
+        assert(err instanceof Error);
         done()
       }, 500)
     })

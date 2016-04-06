@@ -1,7 +1,6 @@
 # link.js
 
 ## usage 
-  - es6 only
   - relative, need one at both sides
   - abstract interface for communication between two parties    
   
